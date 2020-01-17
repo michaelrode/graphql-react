@@ -1,6 +1,10 @@
 import React, { Component } from 'react';
 import { graphql } from 'react-apollo';
-import { getAuthorsQuery, addBookMutation } from '../queries/queries';
+import {
+  getAuthorsQuery,
+  addBookMutation,
+  getBooksQuery
+} from '../queries/queries';
 import { flowRight as compose } from 'lodash';
 
 class AddBook extends Component {
@@ -15,7 +19,7 @@ class AddBook extends Component {
   displayAuthors() {
     var data = this.props.getAuthorsQuery;
     if (data.loading) {
-      return <option disabled>Loading Authors</option>;
+      return <option disabled>Loading authors</option>;
     } else {
       return data.authors.map(author => {
         return (
@@ -28,12 +32,14 @@ class AddBook extends Component {
   }
   submitForm(e) {
     e.preventDefault();
+    // use the addBookMutation
     this.props.addBookMutation({
       variables: {
         name: this.state.name,
         genre: this.state.genre,
         authorId: this.state.authorId
-      }
+      },
+      refetchQueries: [{ query: getBooksQuery }]
     });
   }
   render() {
@@ -53,7 +59,6 @@ class AddBook extends Component {
             onChange={e => this.setState({ genre: e.target.value })}
           />
         </div>
-
         <div className='field'>
           <label>Author:</label>
           <select onChange={e => this.setState({ authorId: e.target.value })}>
@@ -61,8 +66,7 @@ class AddBook extends Component {
             {this.displayAuthors()}
           </select>
         </div>
-
-        <button>Add Book</button>
+        <button>+</button>
       </form>
     );
   }
